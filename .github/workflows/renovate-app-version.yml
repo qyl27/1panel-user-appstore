@@ -1,0 +1,58 @@
+name: Update app version in Renovate Branches
+
+on:
+  push:
+    branches: ["renovate/**"]
+  workflow_dispatch:
+    inputs:
+      manual-trigger:
+        description: "Manually update app version directories"
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  update-app-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref_name }}
+
+      - name: Configure repo
+        run: |
+          git config --local user.email "githubaction@githubaction.com"
+          git config --local user.name "github-action update-app-version"
+
+      - name: Get list of updated files by the last commit
+        id: updated-files
+        run: |
+          files="$(git diff-tree --no-commit-id --name-only -r "${{ github.sha }}" | tr '\n' ' ')"
+          echo "files=$files" >> "$GITHUB_OUTPUT"
+
+      - name: Run renovate-app-version.sh on updated app files
+        run: |
+          IFS=' ' read -ra files <<< "${{ steps.updated-files.outputs.files }}"
+
+          for file in "${files[@]}"; do
+            if [[ "$file" == apps/*/*/docker-compose.yml ]]; then
+              app_name="$(cut -d'/' -f 2 <<< "$file")"
+              old_version="$(cut -d'/' -f 3 <<< "$file")"
+              chmod +x .github/workflows/renovate-app-version.sh
+              .github/workflows/renovate-app-version.sh "$app_name" "$old_version"
+            fi
+          done
+
+      - name: Commit & Push Changes
+        run: |
+          if [[ -z "$(git status --porcelain)" ]]; then
+            echo "No version directory changes to commit."
+            exit 0
+          fi
+
+          git add -A apps
+          git commit -m "Update app version [skip ci]" --no-verify
+          git push origin "HEAD:${{ github.ref_name }}"
