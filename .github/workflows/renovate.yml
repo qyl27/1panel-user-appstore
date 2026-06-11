@@ -4,10 +4,6 @@ on:
   schedule:
     - cron: "0 * * * *"
   workflow_dispatch:
-    inputs:
-      manual-trigger:
-        description: "Manually trigger Renovate"
-        default: ""
 
 permissions:
   contents: read

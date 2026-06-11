@@ -4,10 +4,6 @@ on:
   push:
     branches: ["renovate/**"]
   workflow_dispatch:
-    inputs:
-      manual-trigger:
-        description: "Manually update app version directories"
-        default: ""
 
 permissions:
   contents: write
