@@ -3,5 +3,10 @@
   "extends": ["config:base"],
   "enabledManagers": ["docker-compose"],
   "includePaths": ["apps/**"],
-  "prCreation": "immediate"
+  "prCreation": "immediate",
+  "postUpgradeTasks": {
+    "commands": ["bash .github/workflows/renovate-app-version.sh"],
+    "fileFilters": ["apps/**"],
+    "executionMode": "branch"
+  }
 }
