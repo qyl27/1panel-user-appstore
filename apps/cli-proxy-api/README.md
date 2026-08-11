@@ -5,22 +5,21 @@
 ## 安全提示
 
 - 初始配置为 `api-keys: []`，代理接口默认不要求客户端鉴权。绑定公网地址前，请先通过 WebUI 或 `config.yaml` 添加客户端 API Key。
-- 非空的 `MANAGEMENT_PASSWORD` 会启用并允许远程管理，且使 `remote-management.allow-remote: false` 不再生效。1Panel 默认生成的 Token 只有 6 位随机后缀，公网使用时建议替换为更长的随机值；清空并重启应用可关闭 Management API，但已在 `config.yaml` 中配置 `remote-management.secret-key` 时除外。
+- 非空的 `MANAGEMENT_PASSWORD` 会启用并允许远程管理，且使 `remote-management.allow-remote: false` 不再生效。
 
 ## OAuth 登录
 
-建议优先通过 WebUI 添加上游账号。如果需要通过命令行登录，请进入本应用的 Compose 目录，使用一次性容器临时开放回调端口；常驻服务只发布 API 端口。
+建议优先通过 WebUI 添加上游账号。如果需要通过命令行登录，请进入本应用的目录（和 docker-compose.yml 文件在同一级别），使用命令运行一次性容器临时开放回调端口；常驻服务只发布 API 端口。
 
 <details>
-<summary>查看命令行 OAuth 示例</summary>
+<summary>OAuth 登录示例</summary>
 
-以下以 Codex 和回调端口 `1455` 为例：
+以 Codex 和回调端口 `1455` 为例：
 
 ```bash
-SERVICE="$(docker compose config --services | head -n 1)"
 docker compose run --rm --no-deps \
   -p "127.0.0.1:1455:1455" \
-  "${SERVICE}" \
+  "cli-proxy-api" \
   /CLIProxyAPI/CLIProxyAPI \
   --no-browser \
   --codex-login \
@@ -33,7 +32,7 @@ Codex 也支持无需回调端口的设备登录：
 
 ```bash
 docker compose run --rm --no-deps \
-  "${SERVICE}" \
+  "cli-proxy-api" \
   /CLIProxyAPI/CLIProxyAPI \
   --no-browser \
   --codex-device-login
