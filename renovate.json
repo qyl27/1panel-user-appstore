@@ -8,5 +8,12 @@
     "commands": ["bash .github/workflows/renovate-app-version.sh"],
     "fileFilters": ["apps/**"],
     "executionMode": "branch"
-  }
+  },
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["patch"],
+      "automerge": true,
+      "ignoreTests": true
+    }
+  ]
 }
